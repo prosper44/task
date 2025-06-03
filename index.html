@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries</title>
+  <link rel="stylesheet" href="task.css">
+</head>
+<body>
+    <header class="head">
+        <h2>Where in the world?</h2>
+        <h2>Dark Mode</h2>
+    </header>
+  <header>
+    <input type="search" id="search-input" placeholder="Search for countries...">
+    <select id="region-select">
+      <option value="">All Regions</option>
+      <option value="Africa">Africa</option>
+      <option value="Americas">Americas</option>
+      <option value="Asia">Asia</option>
+      <option value="Europe">Europe</option>
+      <option value="Oceania">Oceania</option>
+    </select>
+  </header>
+  <main>
+    <div id="countries-container"></div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+<script>
+    const countriesContainer = document.getElementById('countries-container');
+const searchInput = document.getElementById('search-input');
+const regionSelect = document.getElementById('region-select');
+
+let countriesData = [];
+
+async function fetchCountries() {
+  const response = await fetch('https://restcountries.com/v3.1/all');
+  countriesData = await response.json();
+  renderCountries(countriesData);
+}
+
+function renderCountries(countries) {
+  countriesContainer.innerHTML = '';
+  countries.forEach((country) => {
+    const countryCard = document.createElement('div');
+    countryCard.classList.add('country-card');
+    countryCard.innerHTML = `
+      <img src="${country.flags.png}" alt="${country.name.common} flag">
+      <h2>${country.name.common}</h2>
+      <p>Capital: ${country.capital[0]}</p>
+      <p>Region: ${country.region}</p>
+    `;
+    countriesContainer.appendChild(countryCard);
+  });
+}
+
+searchInput.addEventListener('input', (e) => {
+  const searchValue = e.target.value.toLowerCase();
+  const filteredCountries = countriesData.filter((country) => {
+    return country.name.common.toLowerCase().includes(searchValue);
+  });
+  renderCountries(filteredCountries);
+});
+
+regionSelect.addEventListener('change', (e) => {
+  const selectedRegion = e.target.value;
+  if (selectedRegion === '') {
+    renderCountries(countriesData);
+  } else {
+    const filteredCountries = countriesData.filter((country) => {
+      return country.region === selectedRegion;
+    });
+    renderCountries(filteredCountries);
+  }
+});
+
+fetchCountries();
+
+
+</script>
